@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { VerificationUpload } from "@/components/profile/VerificationUpload";
+import {useVerificationStatus} from "@/hooks/use-verification-status.tsx";
 
 // Exemple de données pour les cards de statistiques et leads
 const stats = [
@@ -78,12 +79,7 @@ const recentLeads = [
 const Dashboard = () => {
   // État pour simuler le statut de vérification de l'utilisateur
   // En production, cette valeur viendrait de Supabase
-  const [verificationStatus, setVerificationStatus] = useState<string>("waiting_for_doc");
-
-  // Fonction pour mettre à jour le statut
-  const handleStatusUpdate = (newStatus: string) => {
-    setVerificationStatus(newStatus);
-  };
+  const { status: verificationStatus } = useVerificationStatus();
 
   // Rendu conditionnel en fonction du statut
   const renderDashboardContent = () => {
@@ -166,7 +162,7 @@ const Dashboard = () => {
                   </tbody>
                 </table>
               </div>
-              
+
               {/* Voir tous les leads */}
               <div className="mt-4 text-center">
                 <Button variant="outline" asChild>
@@ -187,13 +183,13 @@ const Dashboard = () => {
               Bienvenue sur votre espace MapeoRewards. Pour commencer à proposer des leads, veuillez compléter votre dossier.
             </p>
           </div>
-          
+
           {/* Composant de téléchargement de document */}
-          <VerificationUpload 
-            status={verificationStatus} 
-            onStatusUpdate={handleStatusUpdate} 
+          <VerificationUpload
+            status={verificationStatus}
+            onStatusUpdate={()=>null}
           />
-          
+
           {/* Message informatif */}
           <Card>
             <CardHeader>
@@ -201,7 +197,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p>MapeoRewards vous permet de gagner des commissions en recommandant des personnes intéressées par l'achat ou la vente d'un bien immobilier.</p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="border rounded-lg p-4 text-center">
                   <div className="bg-mapeo-50 text-mapeo-700 h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -210,7 +206,7 @@ const Dashboard = () => {
                   <h3 className="font-medium mb-2">Vérifiez votre identité</h3>
                   <p className="text-sm text-gray-500">Téléchargez votre pièce d'identité pour activer votre compte</p>
                 </div>
-                
+
                 <div className="border rounded-lg p-4 text-center">
                   <div className="bg-mapeo-50 text-mapeo-700 h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="font-bold">2</span>
@@ -218,7 +214,7 @@ const Dashboard = () => {
                   <h3 className="font-medium mb-2">Recommandez des clients</h3>
                   <p className="text-sm text-gray-500">Proposez des personnes cherchant à acheter ou vendre</p>
                 </div>
-                
+
                 <div className="border rounded-lg p-4 text-center">
                   <div className="bg-mapeo-50 text-mapeo-700 h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="font-bold">3</span>

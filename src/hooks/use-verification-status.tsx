@@ -11,11 +11,11 @@ interface VerificationContextType {
 const VerificationContext = createContext<VerificationContextType | undefined>(undefined);
 
 export function VerificationProvider({ children }: { children: ReactNode }) {
-  const [status, setStatus] = useState<VerificationStatus>("waiting_for_doc");
+  const [status, setStatus] = useState<VerificationStatus>("validated");
 
   const updateStatus = (newStatus: VerificationStatus) => {
     setStatus(newStatus);
-    
+
     // Dans une application réelle, nous mettrions également à jour Supabase ici
     console.log(`Status updated to: ${newStatus}`);
   };
@@ -29,10 +29,10 @@ export function VerificationProvider({ children }: { children: ReactNode }) {
 
 export function useVerificationStatus() {
   const context = useContext(VerificationContext);
-  
+
   if (context === undefined) {
     throw new Error("useVerificationStatus must be used within a VerificationProvider");
   }
-  
+
   return context;
 }
