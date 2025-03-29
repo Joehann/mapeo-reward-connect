@@ -2,40 +2,25 @@
 import { ReactNode, useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
-import { Building2, LayoutDashboard, Users, FileText, Settings, LogOut } from "lucide-react";
+import { Building2, LayoutDashboard, Users, FileText, Settings, LogOut, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useVerificationStatus } from "@/hooks/use-verification-status";
+import { Button } from "@/components/ui/button";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-// Dans une application réelle, cette fonction récupérerait le profil utilisateur depuis Supabase
-const useUserVerificationStatus = (): string => {
-  // Simule un état qui viendrait de Supabase
-  const [status, setStatus] = useState<string>("waiting_for_doc");
-
-  // Simule la récupération du statut utilisateur depuis Supabase
-  useEffect(() => {
-    // Dans une application réelle, nous ferions un appel à Supabase ici
-    // Pour simuler, on utilise un délai
-    const timer = setTimeout(() => {
-      // Exemple d'état pour tester - en production, il faudrait récupérer depuis Supabase
-      // Par défaut, un nouvel utilisateur aurait "waiting_for_doc"
-      // Décommenter une de ces lignes pour tester différents états:
-      // setStatus("pending");
-      // setStatus("validated");
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return status;
-};
-
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
-  const verificationStatus = useUserVerificationStatus();
+  const { status, updateStatus } = useVerificationStatus();
   
   // Détermine les éléments de navigation en fonction du statut de vérification
   const getNavigation = () => {
@@ -58,7 +43,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     // Combine les éléments en fonction du statut
     return [
       ...baseNavigation,
-      ...(verificationStatus === "validated" ? verifiedNavigation : []),
+      ...(status === "validated" ? verifiedNavigation : []),
       ...endNavigation
     ];
   };
@@ -81,6 +66,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <item.icon className={cn("h-5 w-5", isActive ? "text-mapeo-700" : "text-gray-500")} />
         {item.name}
       </Link>
+    );
+  };
+
+  // Bouton temporaire pour changer le statut (pour la démo)
+  const StatusSwitcher = () => {
+    const statusOptions = [
+      { value: "waiting_for_doc", label: "En attente de document" },
+      { value: "pending", label: "En cours de validation" },
+      { value: "validated", label: "Validé" },
+      { value: "rejected", label: "Rejeté" }
+    ];
+
+    return (
+      <div className="px-4 py-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="w-full">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              <span className="truncate">Changer le statut (démo)</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            {statusOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => updateStatus(option.value as any)}
+                className={cn(
+                  "cursor-pointer",
+                  status === option.value && "font-bold"
+                )}
+              >
+                {option.label}
+                {status === option.value && " (actuel)"}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     );
   };
 
@@ -110,6 +133,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               ))}
             </ul>
           </nav>
+          
+          {/* Statut actuel */}
+          <div className="border-t p-2">
+            <div className="text-xs text-gray-500 mb-2 px-2">
+              Statut actuel: {status === "waiting_for_doc" ? "En attente de document" : 
+                             status === "pending" ? "En cours de validation" : 
+                             status === "validated" ? "Validé" : 
+                             status === "rejected" ? "Rejeté" : status}
+            </div>
+            <StatusSwitcher />
+          </div>
           
           {/* Sidebar footer */}
           <div className="border-t p-4">
