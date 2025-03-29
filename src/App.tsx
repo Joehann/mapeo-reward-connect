@@ -11,6 +11,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
+import LeadDetails from "./pages/LeadDetails";
 import NewLead from "./pages/NewLead";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/leads" element={<Leads />} />
+          <Route path="/leads/:id" element={<LeadDetails />} />
           <Route path="/leads/new" element={<NewLead />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
