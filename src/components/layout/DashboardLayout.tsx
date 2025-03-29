@@ -1,5 +1,5 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link, useLocation } from "react-router-dom";
 import { Building2, LayoutDashboard, Users, FileText, Settings, LogOut } from "lucide-react";
@@ -9,16 +9,61 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+// Dans une application réelle, cette fonction récupérerait le profil utilisateur depuis Supabase
+const useUserVerificationStatus = (): string => {
+  // Simule un état qui viendrait de Supabase
+  const [status, setStatus] = useState<string>("waiting_for_doc");
+
+  // Simule la récupération du statut utilisateur depuis Supabase
+  useEffect(() => {
+    // Dans une application réelle, nous ferions un appel à Supabase ici
+    // Pour simuler, on utilise un délai
+    const timer = setTimeout(() => {
+      // Exemple d'état pour tester - en production, il faudrait récupérer depuis Supabase
+      // Par défaut, un nouvel utilisateur aurait "waiting_for_doc"
+      // Décommenter une de ces lignes pour tester différents états:
+      // setStatus("pending");
+      // setStatus("validated");
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return status;
+};
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const verificationStatus = useUserVerificationStatus();
   
-  const navigation = [
-    { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Mes Leads", href: "/leads", icon: Users },
-    { name: "Nouveau Lead", href: "/leads/new", icon: FileText },
-    { name: "Paramètres", href: "/profile", icon: Settings },
-  ];
+  // Détermine les éléments de navigation en fonction du statut de vérification
+  const getNavigation = () => {
+    // Éléments de base toujours présents
+    const baseNavigation = [
+      { name: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard }
+    ];
+    
+    // Éléments réservés aux utilisateurs vérifiés
+    const verifiedNavigation = [
+      { name: "Mes Leads", href: "/leads", icon: Users },
+      { name: "Nouveau Lead", href: "/leads/new", icon: FileText },
+    ];
+    
+    // Éléments toujours présents à la fin
+    const endNavigation = [
+      { name: "Paramètres", href: "/profile", icon: Settings },
+    ];
+    
+    // Combine les éléments en fonction du statut
+    return [
+      ...baseNavigation,
+      ...(verificationStatus === "validated" ? verifiedNavigation : []),
+      ...endNavigation
+    ];
+  };
+  
+  const navigation = getNavigation();
 
   const NavItem = ({ item }: { item: typeof navigation[0] }) => {
     const isActive = location.pathname === item.href;
